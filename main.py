@@ -1,14 +1,15 @@
 import csv
+import math
 from ModelData import ModelData as MD
 from operator import attrgetter
 
 MDtrain = []            #data train
 MDtest = []             #data test
 
-K = 4                   #atur K nya berapa, saya mendapat 4 karena hasil akurasi lebih maksimal pada saat training dengan train Data
+K = 16                   #atur K nya berapa, saya mendapat 4 karena hasil akurasi lebih maksimal pada saat training dengan train Data
 
 trainLen = 800          #total panjang train data, yang perlu di Indeks
-trainRata = 210         #pembagian rata pada setiap kelas Y misal [100, 100, 100, 100] 
+trainRata = 210          #pembagian rata pada setiap kelas Y misal [100, 100, 100, 100] 
                                                                 #   0    1    2    3
                         #210 untuk maksimal 800 train, karena tidak semuanya 200 pas
 
@@ -30,27 +31,31 @@ def csv_reader():
                 if Model.Y == 0 and hitungRata[0] < trainRata: 
                     MDtrain.append(Model)
                     hitungRata[0]+=1
+                elif Model.Y == 0 and hitungRata[0] >= trainRata and not usingTestData:
+                    MDtest.append(Model)
+
                 elif Model.Y == 1 and hitungRata[1] < trainRata: 
                     MDtrain.append(Model)
                     hitungRata[1]+=1
+                elif Model.Y == 1 and hitungRata[1] >= trainRata and not usingTestData:
+                    MDtest.append(Model)
+
                 elif Model.Y == 2 and hitungRata[2] < trainRata: 
                     MDtrain.append(Model)
                     hitungRata[2]+=1
+                elif Model.Y == 2 and hitungRata[2] >= trainRata and not usingTestData:
+                    MDtest.append(Model)
+
                 elif Model.Y == 3 and hitungRata[3] < trainRata: 
                     MDtrain.append(Model)
                     hitungRata[3]+=1
+                elif Model.Y == 3 and hitungRata[3] >= trainRata and not usingTestData:
+                    MDtest.append(Model)
                 #endregion
 
-                # print(f'{hitungRata}') #Matikan komentar untuk melihat hitungan sama rata
                 
-                # untuk training melakukan pemilihan test data dari file training data
-                if usingTestData == False:
-                    if Model.Index > len(MDtrain) and Model.Index <= (len(MDtrain)*2):
-                        MDtest.append(Model)
-
                 line_count += 1
             if hitungRata[0] == trainRata and hitungRata[1] == trainRata and hitungRata[2] == trainRata and hitungRata[3] == trainRata and line_count-1 == trainLen:
-            # if hitungRata[0] == trainRata and hitungRata[1] == trainRata and line_count-1 == (len(MDtrain)*2):
                 break
 
     if usingTestData:
@@ -66,7 +71,8 @@ def csv_reader():
                     MDtest.append(Model)
                     line_count += 1
 
-    print(f'Train : {len(MDtrain)}, Test : {len(MDtest)}')
+    print(f'\t{hitungRata} data pada setiap kelas') #hitungan sama rata
+    print(f'\tTrain : {len(MDtrain)}, Test : {len(MDtest)}')
 
     # for x in range(len(MDtest)):
     #     print(f'{MDtrain[x].Index, MDtrain[x].Y}, {MDtest[x].Index, MDtest[x].Y}')
@@ -85,21 +91,20 @@ def prosesJarak():
     #region melakukan pencarian jarak terdekat dari sekitar masing" DataTest
     for test in MDtest:
         for train in MDtrain:
-            x1 = train.X1 - test.X1
-            x2 = train.X2 - test.X2
-            x3 = train.X3 - test.X3
-            x4 = train.X4 - test.X4
-            x5 = train.X5 - test.X5
-
-            distance = ((x1*x1) + (x2*x2) + (x3*x3) + (x4*x4) + (x5*x5))
-            train.setDistance(distance)
+            x1 = math.sqrt((train.X1 - test.X1)**2)
+            x2 = math.sqrt((train.X2 - test.X2)**2)
+            x3 = math.sqrt((train.X3 - test.X3)**2)
+            x4 = math.sqrt((train.X4 - test.X4)**2)
+            x5 = math.sqrt((train.X5 - test.X5)**2)
+            distance = ((x1) + (x2) + (x3) + (x4) + (x5))
+            train.setDistance(round(distance, 2))
         
         #dilakukan sort Ascending sesuai jarak terdekat 
         MDtrain.sort(key=attrgetter('distance'))
         Ys = []
         for train in MDtrain[:K]:
             Ys.append(train.Y)
-            #print(f'{train.distance, train.Index, train.Y}')
+            # print(f'{train.distance, train.Index, train.Y}')
 
         #memilih kelas mana yang paling banyak disekitar, sesuai K
         _Ys = {}
@@ -110,7 +115,7 @@ def prosesJarak():
                 _Ys[y] = 1
         #didapat hasil mana yang paling banyak disekitar
         Y_terdekat = sorted(_Ys, key=_Ys.get, reverse=True)
-        # print(Y_terdekat[0]) 
+        # print(f'{_Ys}     {Y_terdekat}') 
         # print(f'{test.Index, test.Y, Y_terdekat[0]}')
 
         #pengecekan train test, lalu kalkulasi berapa % kebenarannya berdasarkan train
@@ -120,18 +125,28 @@ def prosesJarak():
                 dataBenar+=1
             else:
                 test.setY('Beda')
-            # print(f'{dataBenar} data sama')
-            print(f'{(dataBenar*100)/len(MDtest)}% data sama')
-            # print('\n')
         else:
             test.setY(Y_terdekat[0])
+        
+    if not usingTestData:
+        # print(f'{dataBenar} data sama')
+        print(f'{K}, {round((dataBenar*100)/len(MDtest), 1)}% data sama')
     
                     
 def main():
-    print(f'Key : {K}')
+    
     csv_reader()
     prosesJarak()
     csv_writer(3)
+
+    # for i in range(1, 100):
+    #     global K
+    #     K = i
+    #     csv_reader()
+    #     prosesJarak()
+    #     csv_writer(3)
+    #     MDtest.clear()
+    #     MDtrain.clear()
 
 
 if __name__ == "__main__":
