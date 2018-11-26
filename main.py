@@ -6,7 +6,7 @@ from operator import attrgetter
 MDtrain = []            #data train
 MDtest = []             #data test
 
-K = 16                   #atur K nya berapa, saya mendapat 4 karena hasil akurasi lebih maksimal pada saat training dengan train Data
+K = 9                   #atur K nya berapa, saya mendapat 4 karena hasil akurasi lebih maksimal pada saat training dengan train Data
 
 trainLen = 800          #total panjang train data, yang perlu di Indeks
 trainRata = 210          #pembagian rata pada setiap kelas Y misal [100, 100, 100, 100] 
@@ -91,12 +91,12 @@ def prosesJarak():
     #region melakukan pencarian jarak terdekat dari sekitar masing" DataTest
     for test in MDtest:
         for train in MDtrain:
-            x1 = math.sqrt((train.X1 - test.X1)**2)
-            x2 = math.sqrt((train.X2 - test.X2)**2)
-            x3 = math.sqrt((train.X3 - test.X3)**2)
-            x4 = math.sqrt((train.X4 - test.X4)**2)
-            x5 = math.sqrt((train.X5 - test.X5)**2)
-            distance = ((x1) + (x2) + (x3) + (x4) + (x5))
+            x1 = (train.X1 - test.X1)**2
+            x2 = (train.X2 - test.X2)**2
+            x3 = (train.X3 - test.X3)**2
+            x4 = (train.X4 - test.X4)**2
+            x5 = (train.X5 - test.X5)**2
+            distance = math.sqrt(((x1) + (x2) + (x3) + (x4) + (x5)))
             train.setDistance(round(distance, 2))
         
         #dilakukan sort Ascending sesuai jarak terdekat 
