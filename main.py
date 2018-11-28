@@ -34,19 +34,19 @@ def csv_reader():
                 elif Model.Y == 0 and hitungRata[0] >= trainRata and not usingTestData:
                     MDtest.append(Model)
 
-                elif Model.Y == 1 and hitungRata[1] < trainRata: 
+                if Model.Y == 1 and hitungRata[1] < trainRata: 
                     MDtrain.append(Model)
                     hitungRata[1]+=1
                 elif Model.Y == 1 and hitungRata[1] >= trainRata and not usingTestData:
                     MDtest.append(Model)
 
-                elif Model.Y == 2 and hitungRata[2] < trainRata: 
+                if Model.Y == 2 and hitungRata[2] < trainRata: 
                     MDtrain.append(Model)
                     hitungRata[2]+=1
                 elif Model.Y == 2 and hitungRata[2] >= trainRata and not usingTestData:
                     MDtest.append(Model)
 
-                elif Model.Y == 3 and hitungRata[3] < trainRata: 
+                if Model.Y == 3 and hitungRata[3] < trainRata: 
                     MDtrain.append(Model)
                     hitungRata[3]+=1
                 elif Model.Y == 3 and hitungRata[3] >= trainRata and not usingTestData:
